@@ -1,0 +1,261 @@
+🧪 Network Forensics using Wireshark — Steps
+
+STEP 1: Open Wireshark
+• Open terminal in Kali Linux
+• Run: wireshark &
+
+STEP 2: Select Network Interface
+• Wireshark opens
+• Select interface (eth0 / wlan0)
+• Click Start (shark icon)
+• Packet capture begins
+
+STEP 3: Generate Traffic
+• Open browser
+• Visit any site (Google, YouTube)
+• Packets start appearing
+
+STEP 4: Apply Protocol Filters
+• Type in filter bar:
+• tcp → TCP packets
+• udp → UDP packets
+• http → HTTP packets
+
+STEP 5: Filter by IP Address
+• Use: ip.addr == 192.168.x.x
+• Shows traffic of that IP
+
+STEP 6: Filter by Source IP
+• Use: ip.src == 192.168.x.x
+• Shows packets from source
+
+STEP 7: Follow TCP Stream
+• Right-click TCP packet
+• Follow → TCP Stream
+• View full communication
+
+STEP 8: Detect Suspicious Traffic (Port Scan)
+• Open terminal
+• Run: nmap -sS 192.168.x.x
+• In filter: tcp.flags.syn == 1 && tcp.flags.ack == 0
+• Observe multiple SYN packets
+• Indicates port scanning
+
+STEP 9: Capture File Properties
+• Statistics → Capture File Properties
+• View packets, size, duration
+
+STEP 10: Resolved Addresses
+• Statistics → Resolved Addresses
+• Shows IP ↔ domain, MAC ↔ device
+
+STEP 11: Protocol Hierarchy
+• Statistics → Protocol Hierarchy
+• Shows protocol usage
+
+STEP 12: Conversations
+• Statistics → Conversations
+• Shows device communication
+
+STEP 13: Packet Length
+• Statistics → Packet Length
+• Shows packet size distribution
+
+STEP 14: Endpoints
+• Statistics → Endpoints
+• Shows all devices
+
+STEP 15: I/O Graphs
+• Statistics → I/O Graphs
+• Shows traffic over time
+----------------------------------------------------------------------------------------------------------------------
+  last
+journalctl | grep ssh
+journalctl | grep -i error
+cd /var/log/apache2
+ls
+sudo less access.log
+grep "404" /var/log/apache2/access.log
+less /var/log/dpkg.log
+sudo journalctl -f
+sudo apt update
+sudo apt install openssh-server -y
+sudo service ssh start
+ip a
+ssh fakeuser@localhost
+journalctl | grep "Failed password"
+journalctl | grep "Failed password" | awk '{print $13}'
+journalctl | grep "Failed password" | awk '{print $13}' | sort | uniq -c | sort -nr
+sudo last
+journalctl --since "10 minutes ago"
+  -------------------------------------------------------------------------------------------------------------
+
+  PART 0: Environment Setup
+
+Step 1: Install Node.js
+sudo apt update
+sudo apt install nodejs npm
+node -v
+npm -v
+
+Step 2: Run WhatsApp Desktop
+cd WhatsAppWeb-linux-x64
+./WhatsAppWeb
+
+Step 3: Login
+Scan QR code using mobile → Linked Devices → Done
+
+PART 1: Privacy Audit of Desktop WhatsApp
+
+Step 1: Launch WhatsApp Desktop
+cd WhatsAppWeb-linux-x64
+./WhatsAppWeb
+QR Code appears → Login using mobile
+
+Step 2: Install WhatsApp APK (Optional)
+Download APK or use mobile
+
+Step 3: Analyze Trackers using Exodus Privacy
+Open browser → https://reports.exodus-privacy.eu.org
+ → Search WhatsApp
+Observation: Google Analytics, Crashlytics, Facebook Analytics
+Record: Number of trackers, permissions
+
+Step 4: Start Wireshark
+Select interface (eth0/wlan0) → Start Capture
+
+Step 5: Generate Traffic
+Send messages, images, open chats
+
+Step 6: Apply Filters
+tls
+dns
+Observation: Encrypted traffic, domains (whatsapp.net, facebook.com), message content not visible
+
+Findings: End-to-End Encryption, metadata visible (IP, time, server communication)
+
+PART 2: Privacy Audit of Facebook Website
+
+Step 1: Open Facebook
+https://www.facebook.com
+ → Login
+
+Step 2: Start Burp Suite
+
+Step 3: Configure Proxy
+IP: 127.0.0.1
+Port: 8080
+Browser → Manual Proxy
+
+Step 4: Intercept Traffic
+Intercept ON → Reload
+Observe: cookies (datr, fr), session IDs, headers
+
+Step 5: Analyze Tracking
+F12 → Network tab → Ads, analytics, third-party requests
+
+Findings: Heavy tracking, cookies used, third-party integrations
+
+PART 3: Data Breach Case Study
+
+Case 1: Facebook Data Breach
+533 million users
+Data: phone numbers, emails
+Cause: API vulnerability
+
+Case 2: WhatsApp Pegasus Attack
+Spyware via missed call → Remote access
+
+Step 3: Check Email Breach
+https://haveibeenpwned.com
+ → Enter email
+
+Analysis Points: attack type, vulnerability, data exposed, prevention
+  _____________________________________________________________________________________________________________________
+🔐 System Security Audit — Steps
+
+STEP 1: System Information
+• Press Windows + R
+• Type: msinfo32
+• Note OS version, system type
+• Windows 11, 64-bit, Intel i5
+• Secure Boot enabled
+• Secure Boot improves system security
+
+STEP 2: Check Windows Updates
+• Open Settings → Windows Update
+• Click Check for updates
+• Updates pending, restart required
+• Updates fix vulnerabilities
+
+STEP 3: Check Firewall Status
+• Search Windows Defender Firewall
+• Open settings
+• Firewall managed by Kaspersky
+• Third-party firewall active
+• Provides network protection
+
+STEP 4: Check Antivirus
+• Open Windows Security
+• Virus & Threat Protection
+• Real-time protection ON
+• No threats detected
+• Kaspersky antivirus active
+
+STEP 5: Check Account Security
+• Settings → Accounts → Sign-in options
+• Password and PIN enabled
+• Windows Hello available
+• Strong authentication improves security
+
+STEP 6: Check Installed Applications
+• Settings → Apps → Installed apps
+• Look for unknown or cracked software
+• No suspicious apps found
+• Unknown apps increase malware risk
+
+STEP 7: Check Startup Programs
+• Press Ctrl + Shift + Esc
+• Go to Startup tab
+• Disable unnecessary apps
+• Improves performance and security
+
+STEP 8: Check Network Security
+• Settings → Network & Internet
+• Check Wi-Fi status
+• Network profile = Public
+• Public network limits access
+• Improves security in untrusted networks
+
+STEP 9: Check Browser Security
+• Open browser settings
+• Privacy & Security
+• Safe Browsing ON
+• Remove unknown extensions
+• Protects from phishing/malware
+
+STEP 10: Check Data Backup
+• Open Backup settings
+• Check OneDrive / external backup
+• Backup not configured
+• Risk of data loss
+
+STEP 11: Risk Assessment
+• Files → Data loss → No backup → High → Enable backup
+• System → Malware → Unknown apps → High → Remove apps
+• Network → Hacking → Public → Medium → Use private
+• Account → Unauthorized access → Weak password → High → Strong password
+
+STEP 12: Security Recommendations
+• Enable firewall and antivirus
+• Keep system updated
+• Use strong passwords
+• Avoid unknown downloads
+• Avoid phishing links
+• Practice safe browsing
+
+STEP 13: Result
+• Audit completed
+• Vulnerabilities identified
+• Security improvements suggested
+  
