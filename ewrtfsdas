@@ -1,346 +1,168 @@
-WEEK-8---SNS,SQS & S3-SNS-SQS-LAMBDA SERVICES
-1) Simple Notification Sevice (SNS) 
-A) Create SNS Topic and Send Message to Email
-We will:
-1.Create an SNS Topic
-2.Create an Email Subscription
-3.Confirm the subscription
-4.Publish a test message
+STEP 1: Create Emulator
+• Open Android Studio
+• Tools → Device Manager
+• Create Device → Select Pixel
+• Choose API → Finish
 
-Step 1: Create SNS Topic
-1.Login to AWS Console
-2.In search bar → Type SNS
-3.Open Amazon SNS (Simple Notification Service)
-4.In left panel → Click Topics
-5.Click Create topic
-Configure:
-Type → Select Standard
-Name → MyEmailTopic
-Leave other settings default (unless required)
-6.Click Create topic
+STEP 2: Check Emulator Name
+• Open Command Prompt
+• Go to emulator folder
+• Run: emulator -list-avds
+• Note name
 
- Step 2: Create Email Subscription
-1.Open your created topic
-2.Go to Subscriptions tab
-3.Click Create subscription
-Configure:
-Protocol → Select Email
-Endpoint → Enter your email address
-4.Click Create subscription
+STEP 3: Start Emulator with Proxy
+• Run: emulator -avd Pixel_9 -http-proxy http://10.0.2.2:8080
 
- Step 3: Confirm Subscription
-Go to your email inbox
-You will receive a mail from Amazon SNS
-Click Confirm subscription
-Now your email is successfully subscribed 🎉
+STEP 4: Set Proxy in Emulator
+• Settings → Network & Internet
+• Internet → Select network
+• Edit → Advanced Options
+• Proxy = Manual
+• Host = 10.0.2.2
+• Port = 8080
+• Save
 
- Step 4: Publish Test Message
-1.Open your SNS topic
-2.Click Publish message
-3.Add:
-oSubject → Test Mail
-oMessage body → Hello this is SNS test
-4.Click Publish message
- You will receive email notification.
+STEP 4 (Alternative ADB)
+• adb devices
+• adb shell settings put global http_proxy 10.0.2.2:8080
+• Verify: adb shell settings get global http_proxy
 
- B) Trigger Email When S3 Object is Uploaded (S3 → SNS → Email)
-Now we extend this setup:
-Flow:
-S3 Bucket → Event Notification → SNS Topic → Email
+STEP 5: Configure Burp Suite
+• Open Burp Suite
+• Proxy → Options
+• Edit Listener → All Interfaces
+• Intercept → ON
 
- Step 1: Create S3 Bucket
-1.Search → S3
-2.Click Create bucket
-Configure:
-Bucket name → my-upload-bucket-2026
-Choose Region (Important: Same region as SNS topic)
-Keep default settings (unless specific requirement)
-3.Click Create bucket
+STEP 6: Test HTTP
+• Open browser
+• Visit: http://example.com
 
- Step 2: Create SNS Topic (If not already created)
-You can reuse the topic from Part A
-OR create new topic like:
-Topic name → S3UploadNotification
-Make sure email subscription is confirmed.
+• Check HTTP History
 
- Step 3: Allow S3 to Publish to SNS (Access Policy)
-1.Open SNS Topic
-2.Go to Access policy
-3.Click Edit
-Add permission for S3 to publish.
-If using Basic Editor:
-Access Policy that needs to be configured on SNS: 
-a) replace SNS topic ARN 
-b) Replace s3 bucket ARN
- c) Replace account 
-{
-  "Version": "2012-10-17",
-  "Id": "example-ID",
-  "Statement": [
-    {
-      "Sid": "Example SNS topic policy",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "s3.amazonaws.com"
-      },
-      "Action": [
-        "SNS:Publish"
-      ],
-      "Resource": "SNS topic ARN",
-      "Condition": {
-        "ArnLike": {
-          "aws:SourceArn": "s3 bucket ARN"
-        },
-        "StringEquals": {
-          "aws:SourceAccount": "account id"
-        }
-      }
-    }
-  ]
-}
+STEP 7: Export Certificate
+• Burp → Proxy → Options
+• Export CA Certificate
+• Save as .der
 
-(Modern AWS console often auto-generates this when configuring from S3)
+STEP 8: Push Certificate
+• adb push burpcer.der /sdcard/Download/
 
- Step 4: Configure S3 Event Notification
-1.Open your S3 bucket
-2.Go to Properties
-3.Scroll to Event notifications
-4.Click Create event notification
-Configure:
-Event name → UploadNotification
-Event types → Select:
-o All object create events
-Destination:
-oSelect SNS topic
-oChoose your topic (S3UploadNotification)
-5.Click Save changes
+STEP 9: Install Certificate (CORRECT PATH)
+• Settings
+→ Security & Privacy
+→ More Security & Privacy
+→ Encryption & Credentials
+→ Install a Certificate
+→ CA Certificate
+• Select burpcer.der
 
- Step 5: Test It
-1.Upload any file into the S3 bucket
-2.After upload completes:
-oS3 triggers event
-oSNS receives publish request
-oSNS sends email
- You will receive mail about object upload.
+STEP 10: Test HTTPS
+• Open browser
+• Visit: https://example.com
 
-Simple Queue Service (SQS)
+• Check in Burp
+----------------------------------------------------------------------------------------------------------
+🧪 Experiment 3: IoT Device Security Testing
 
-2) Create SQS Queue and Send Message
-We will:
-1.Create an SQS Queue
-2.Send a message to the Queue
-3.Receive the message from the Queue
+STEP 1: Deploy IoT Simulation
+• Open Command Prompt
+• Run: docker run -d -p 8090:3000 --name juiceshop bkimminich/juice-shop
+• Open browser → http://localhost:8090
 
-Step 1: Create SQS Queue
-1.Login to AWS Console
-2.In the search bar → Type SQS
-3.Open Amazon Simple Queue Service
-4.In the dashboard → Click Create queue
-Configure:
-• Type → Select Standard
-• Name → MyQueue
-• Leave other settings as default
-5.Click Create queue
-Your SQS queue is now created successfully.
+• Verify app is running (OWASP Juice Shop)
 
-Step 2: Send Message to Queue
-1.Open the MyQueue queue
-2.Click Send and receive messages
-3.In the Message body, type:
-Hello this is SQS test message
-4.Click Send message
-Your message is now stored in the queue.
+STEP 2: Find Host IP
+• Open Command Prompt
+• Run: ipconfig
+• Note IPv4 Address (192.168.x.x)
 
-Step 3: Receive Message from Queue
-1.In the same page (Send and receive messages)
-2.Click Poll for messages
-You will see the message displayed.
-Example output:
-Hello this is SQS test message
-3.After processing, click Delete message (optional)
+STEP 3: Start Kali Linux
+• Open Kali Linux
+• Run: ping 192.168.x.x
+• Ensure same network connection
 
- Result:
-SQS queue created
-Message sent successfully
-Message received from queue
+STEP 4: Perform Nmap Scan
+• Open terminal
+• Run: nmap -sV 192.168.x.x
 
+STEP 5: Analyze Scan Result
+• Check open ports
+• Identify services
+• Note version details
+• Example: Port 8090 → HTTP
 
-3) S3 Bucket Event → SNS → SQS → Lambda Processing
-S3 bucket event (like file upload) triggers SNS, which sends the notification to SQS. Then Lambda acts as the consumer and processes the message.
-Services used:
-• Amazon S3
-• Amazon Simple Notification Service
-• Amazon Simple Queue Service
-• AWS Lambda
+STEP 6: Access IoT Dashboard
+• Open browser in Kali
+• Visit: http://192.168.x.x:8090
 
-S3 → SNS → SQS → Lambda Architecture
-S3 Bucket (File Upload)
-        ↓
-     SNS Topic
-        ↓
-     SQS Queue
-        ↓
-   Lambda Function (Consumer)
-When a file is uploaded, S3 sends an event notification to SNS, which forwards the message to SQS. The Lambda function then reads and processes the message from SQS. 
+• Dashboard opens
 
-Step 1: Create S3 Bucket
-1.Login to AWS Console
-2.Search S3
-3.Open Amazon S3
-4.Click Create bucket
-Configure:
-• Bucket name → mys3eventbucket123 (must be unique)
-• Region → choose your region
-Leave other settings default.
-5.Click Create bucket
+STEP 7: Test Login (Weak Credentials)
+• Click Login
+• Try: admin@juice-sh.op / admin123
+• Try: admin / admin
+• Or register new account
 
-Step 2: Create SNS Topic
-1.Search SNS in AWS Console
-2.Open Amazon SNS
-3.Click Topics → Create topic
-Configure:
-• Type → Standard
-• Name → MyS3SNSTopic
-4.Click Create topic
-Copy the SNS Topic ARN.
+STEP 8: Check Unencrypted Communication
+• Open Developer Tools → Network tab
+• Perform login
+• Observe HTTP requests
+• Data visible in plain text
+__________________________________________________________________________________________________________________
+💽 Disk Imaging & Forensic Analysis (Kali + Autopsy)
 
-Step 3: Create SQS Queue
-1.Search SQS in AWS Console
-2.Open Amazon SQS
-3.Click Create queue
-Configure:
-• Type → Standard
-• Name → MyS3Queue
-4.Click Create queue
-Copy the Queue ARN.
+STEP 1: Open Terminal
+• Open Kali Linux
+• Press: Ctrl + Alt + T
 
-Step 4: Subscribe SQS to SNS
-1.Open MyS3SNSTopic
-2.Click Create subscription
-Configure:
-• Protocol → Amazon SQS
-• Endpoint → Select MyS3Queue
-3.Click Create subscription
+STEP 2: Create Evidence File
+• Run: echo "Cybersecurity Lab Evidence" > evidence.txt
+• Verify: ls
+• File evidence.txt created
 
-Step 5: Add Access Policy to SQS
-Open MyS3Queue → Access Policy → Edit
-Replace:
-• SQS ARN
-• SNS ARN
-{
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "sns.amazonaws.com"
-      },
-      "Action": "sqs:SendMessage",
-      "Resource": "SQS ARN",
-      "Condition": {
-        "ArnEquals": {
-          "aws:SourceArn": "SNS ARN"
-        }
-      }
-    }
-  ]
-}
+STEP 3: Identify Disk
+• Run: lsblk
+• View disks like: sda, sda1
+• sda = disk, sda1 = partition
 
-(Modern AWS console often auto-generates this when configuring from S3)
+STEP 4: Create Practice Disk
+• Run: dd if=/dev/zero of=practice_disk.dd bs=1M count=100
+• Creates 100 MB disk file
 
-Click Save.
+STEP 5: Format Disk
+• Run: mkfs.ext4 practice_disk.dd
+• Converts into EXT4 filesystem
 
-Step 6: Add Access Policy to SNS
-Open SNS Topic → Edit access policy
-Replace:
-• SNS topic ARN
-• S3 bucket ARN
-• Account ID
-{
-  "Version": "2012-10-17",
-  "Id": "example-ID",
-  "Statement": [
-    {
-      "Sid": "Example SNS topic policy",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "s3.amazonaws.com"
-      },
-      "Action": [
-        "SNS:Publish"
-      ],
-      "Resource": "SNS topic ARN",
-      "Condition": {
-        "ArnLike": {
-          "aws:SourceArn": "S3 bucket ARN"
-        },
-        "StringEquals": {
-          "aws:SourceAccount": "Account ID"
-        }
-      }
-    }
-  ]
-}
-Save the policy.
+STEP 6: Create Forensic Image
+• Install tool: sudo apt install dc3dd
+• Run: sudo dc3dd if=practice_disk.dd of=/home/kali/disk_image.dd hash=md5 log=/home/kali/acquisition.log
+• Creates image + MD5 hash + log
 
-Step 7: Configure S3 Event Notification
-1.Open S3 Bucket (mys3eventbucket123)
-2.Go to Properties
-3.Scroll to Event notifications
-Click Create event notification
-Configure:
-• Event name → S3UploadEvent
-• Event type → All object create events
-Destination:
-• SNS Topic → MyS3SNSTopic
-Click Save changes.
+STEP 7: Verify Image & Log
+• Check image: ls -lh /home/kali/disk_image.dd
+• Check log: cat /home/kali/acquisition.log
 
-Step 8: Test the Architecture
-1.Open the S3 bucket
-2.Click Upload file
-3.Upload any file (example: test.txt)
-Now:
-File Upload → S3
-        ↓
-Notification → SNS
-        ↓
-Message → SQS
+STEP 8: Start Autopsy
+• Run: autopsy
+• Open browser → http://localhost:9999/autopsy
 
-Step 9: Verify Message in SQS
-1.Open MyS3Queue
-2.Click Send and receive messages
-3.Click Poll for messages
-You will see the S3 event notification message.
+STEP 9: Create New Case
+• Click Create New Case
+• Enter Case Name + Description
+• Click Next
 
-Step 10: Configure Lambda as Consumer
-Now configure Lambda to automatically process messages from SQS.
-Create Lambda Function
-1.Search Lambda in AWS Console
-2.Open AWS Lambda
-3.Click Create Function
-Configure:
-• Author from scratch
-• Function name → SQSConsumerFunction
-• Runtime → Python 3.x
-Click Create function
+STEP 10: Add Host
+• Enter Host Name
+• Add description
+• Click Next
 
-Add SQS Trigger
-1.Open SQSConsumerFunction
-2.Click Add Trigger
-3.Select SQS
-4.Choose MyS3Queue
-Click Add
-Now Lambda will automatically read messages from SQS.
+STEP 11: Add Disk Image
+• Click Add Image
+• Select /home/kali/disk_image.dd
+• Click Next → Finish
 
-Lambda Code
-Replace code with:
-def lambda_handler(event, context):
-
-    for record in event['Records']:
-        print("Message received from SQS:")
-        print(record['body'])
-
-    return {
-        'statusCode': 200,
-        'body': 'Message processed successfully'
-    }
-Click Deploy.
+STEP 12: Analyze Evidence
+• Go to File Analysis
+• Search: evidence.txt
+• File will be found
+----------------------------------------------------------------------------------------------------------------------
