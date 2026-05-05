@@ -1,0 +1,182 @@
+//week-7 lambda
+1.create s3 bucket->name->remaining default settings and click create bucket
+2.create dynamodb->table name->partition key-unique-.click create table
+3.go to lambda->create function->author from scratch->name->python-3.14->additonal settings->
+customise execution role->create role->use existing->lab role->create function
+4.paste code 
+import boto3
+from uuid import uuid4
+
+def lambda_handler(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('newtable') // write dynamodb table name
+
+    if 'Records' in event:
+        for record in event['Records']:
+            bucket_name = record['s3']['bucket']['name']
+            object_key = record['s3']['object']['key']
+            size = record['s3']['object'].get('size', -1)
+            event_name = record.get('eventName', 'Unknown')
+            event_time = record.get('eventTime', 'Unknown')
+
+            table.put_item(
+                Item={
+                    'unique': str(uuid4()),
+                    'Bucket': bucket_name,
+                    'Object': object_key,
+                    'Size': size,
+                    'Event': event_name,
+                    'EventTime': event_time
+                }
+            )
+    else:
+        print("No Records found")
+5.click deploy->click add trigger->s3->use s3 table
+6.upload the file in s3 .  in dynamodb->your table->explore table items->file should visible
+----------------------------------------------------------------------------------------------------------------------
+//week-13-attaching iam to ec2
+1.log in into free tier account
+2.Roles->create role->aws service->under use case select ec2
+3.attach policy->Amazons3FullAccess , role name-anything-.click on create role
+4.create ec2 instance
+5.after creating select the created instance and->
+click action-.security->modify Iam role->
+select the created role-.update
+6.connect the Ec2 instance (SSh client) and open cmd->
+type aws s3 ls if you get any aws not installed command
+7.install  sudo apt-get update -y-> sudo apt install awscli -y->aws --version
+8.aws s3 ls
+9.aws ec2 decribe-instances after writing in cmd should get an error
+-------------------------------------------------------------------------------------------------------------------------
+//week-11-amazon lex
+1.log in into free tier account
+2.amazon lex->create bot->
+Choose:Create a blank bot->
+Enter:Bot name: HotelBookingBot->
+IAM role → Create new role->
+Remaining defaultnext->Language: English->Voice (optional)->Click Done
+3.Intents->Name: BookHotel->Click Create
+4.Add any 4 utterences
+5.slot->add slot->name;age , type:amazon.Number , prompt:What is your age?
+6.in age click on prompt->advanced options->
+success response->conditional brancing->{age}<18->
+message:you are not eligible-.save
+7.again add slot->name:location , type:amazon.city , prompt:which city do you want?
+8.again add slot->name:checkin , type:Amazon.date , prompt:what is your checkindate?
+9.again add slot->name:nights , type:Amazon.Number , prompt:how many nights do you stay?
+10.go back and in slot types->add slot type->add blank slot type->name:RoomType
+11.add values as single,double,suite and save 
+12.in intent->slot->add slot->name:Rooomtype , value select roomtype , prompt:what is your room type?
+13.select the roomtype->advanced options->slot prompt->more prompt options->add->add card group->title , buuton-> add button
+values are single , double , suite
+14.give initial and confirmation response and click build and test
+----------------------------------------------------------------------------------------------------------------------------
+//week-12-GUI and CLI
+PART A: GUI ACCESS (Management Console)
+
+STEP 1: Login
+Login to AWS as Root/Admin
+
+STEP 2: Open IAM
+Go to IAM → Users → Create user
+
+STEP 3: User Details
+Enter name: S3_Specialist
+Enable: Provide user access to AWS Management Console
+Set custom password
+
+STEP 4: Permissions
+Select: Attach policies directly
+Choose: AmazonS3FullAccess
+
+STEP 5: Create User
+Review → Create user
+Download .csv file (contains login details)
+
+STEP 6: Sign Out
+Copy Account ID → Logout
+
+STEP 7: Login as IAM User
+Use sign-in URL → Enter Account ID, username, password
+
+STEP 8: Testing
+Test 1: Go to EC2 → Access Denied (expected)
+Test 2: Go to S3 → Create bucket (success)
+
+---PART B: CLI ACCESS (Programmatic Access)
+
+STEP 1: Generate Access Keys
+IAM → Users → Select user → Security credentials
+Create access key → Select CLI
+Download .csv
+
+STEP 2: Install CLI
+Install AWS CLI on your system
+
+STEP 3: Configure CLI
+Open CMD/Terminal → Run:
+
+aws configure
+
+Enter:
+Access Key ID
+Secret Access Key
+Region: ap-south-1
+Output: json
+
+STEP 4: Test Commands
+
+aws s3 ls
+aws s3 mb s3://your-unique-bucket-name
+aws iam list-users
+--------------------------------------------------------------------------------------------------------------------------------
+//week-10-elastic beanstalk
+->Login to AWS Console(not free tier)
+->Under Compute section ->Search for Elastic Beanstalk
+->Click Create Application
+->Create Application
+->Enter Application Name (e.g., MyApp)
+->Add description (optional)
+->Click Create
+->Create Environment
+->Click Create Environment
+->Choose:Web Server Environment (for web apps)
+->Click Select
+->Configure Environment
+->Enter Environment Name
+->Choose Platform:
+->Java (for .war)
+->Node.js / Python / PHP / etc.-for .zip
+->Under Application Code:
+->Select Upload your code
+->Upload your .war or .zip file
+->Configure Service Access
+->Service Role → Select existing  -LabRole
+->EC2 Key Pair → Optional (for SSH)
+->EC2 Instance Profile → select (e.g., LabInstanceProfile)
+->Select VPC (default is fine)
+->Select Subnets
+->Enable Public IP
+->Choose Instance type (e.g., t2.micro – free tier)
+->Set:
+->Min instances: 1
+->Max instances: 2 (or more)
+->review and click create
+->in domain area you will get and domain link , open in browser app run
+
+for .zip file
+if they wont provide create a two files
+1.application.py
+from flask import Flask
+
+application = Flask(__name__)
+
+@application.route('/')
+def home():
+    return "Hello from AWS Elastic Beanstalk 🚀"
+
+2.requirements.txt
+write content as flask
+
+Then select both the file->right click->to zip
+-------------------------------------------------------------------------------------------------------------------------------
