@@ -23,6 +23,7 @@ STEP 4: Set Proxy in Emulator
 • Save
 
 STEP 4 (Alternative ADB)
+cd C:\Users\Admin\AppData\Local\Android\Sdk\platform-tools(full apth to run the adb devices )
 • adb devices
 • adb shell settings put global http_proxy 10.0.2.2:8080
 • Verify: adb shell settings get global http_proxy
@@ -45,6 +46,7 @@ STEP 7: Export Certificate
 • Save as .der
 
 STEP 8: Push Certificate
+adb push C:\Users\Admin\Downloads\burpcer.der /sdcard/Download/(full command)
 • adb push burpcer.der /sdcard/Download/
 
 STEP 9: Install Certificate (CORRECT PATH)
@@ -143,7 +145,7 @@ STEP 7: Verify Image & Log
 • Check log: cat /home/kali/acquisition.log
 
 STEP 8: Start Autopsy
-• Run: autopsy
+• Run: sudo autopsy
 • Open browser → http://localhost:9999/autopsy
 
 STEP 9: Create New Case
