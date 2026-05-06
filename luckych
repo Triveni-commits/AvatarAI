@@ -70,6 +70,8 @@ STEP 15: I/O Graphs
 • Shows traffic over time
 ----------------------------------------------------------------------------------------------------------------------
   last
+journalctl | less
+journalctl | grep "Failed"
 journalctl | grep ssh
 journalctl | grep -i error
 cd /var/log/apache2
