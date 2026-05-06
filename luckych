@@ -96,9 +96,11 @@ journalctl --since "10 minutes ago"
 
 Step 1: Install Node.js
 sudo apt update
-sudo apt install nodejs npm
+sudo apt install nodejs npm -y
 node -v
 npm -v
+sudo npm install -g nativefier
+nativefier https://web.whatsapp.com
 
 Step 2: Run WhatsApp Desktop
 cd WhatsAppWeb-linux-x64
@@ -114,8 +116,6 @@ cd WhatsAppWeb-linux-x64
 ./WhatsAppWeb
 QR Code appears → Login using mobile
 
-Step 2: Install WhatsApp APK (Optional)
-Download APK or use mobile
 
 Step 3: Analyze Trackers using Exodus Privacy
 Open browser → https://reports.exodus-privacy.eu.org
