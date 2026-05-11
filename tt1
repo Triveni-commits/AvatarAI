@@ -1,0 +1,439 @@
+//EC2-> putty,cloudshell,rdp
+
+1.create a instance->ubuntu->t2.micro->Go to EC2 → Security Groups → Inbound rules
+Ensure this rule exists:
+Type: SSH
+Port: 22
+Source: My IP
+
+2.convert .pem to .ppk
+puttygen->load->in files keep option as all files->.pem->save private key->yes->filename.ppk
+
+3.open putty
+hostname->
+ubuntu@publicipv4 address(copy from instance)->
+click connection->
+SSh->
+auth->
+credentials->
+browse->
+select .ppk ->
+open->
+connected->
+type whoami-.ec2 is connected
+
+4.if u get any network error open created instance->
+security->
+security group link->
+inbound rules->
+edit->ssh->
+source->
+ipv4 and and do the putty process as step 3
+
+5.using created instance->
+in the top right click cloudshell icon->
+select EC2 instance->
+connect->
+copy ssh->
+paste in cloudshell->
+first it gets errorthen do->actions in cloudshell->
+upload file->select.pem file->
+again paste ssh command->
+if got it type whoami->
+if gets error ->
+ls->chmod 400 filename->
+paste again ssh->
+yes->whoami->
+ec2 is connected
+
+6.create again new instance->
+Select an Amazon Machine Image (AMI):Choose a Windows Server AMI (e.g., Windows Server 2019 or 2022)->
+t2.micro->key pair->
+network settings->security group->
+check RDP port 3389 and source as My IP->launch instance
+
+7.select instance->copy public DNS or public ipv4->
+click connect->RDP Client->Click Get Password->
+Upload your Key Pair (.pem) file->Click Decrypt Password->
+Copy the Administrator password shown 
+
+8.in windows->search Remote desktop connection->
+In the Computer field, enter the Public DNS->
+click connect->if the account is another click on more choices->use different account->
+Username: Administrator,passowrd: paste decrypted  password->
+click ok.[if u get any error go to selected instances->
+security-.security group link->edit inbound rules->
+add rule->custom(RDP)->custom type(anywhere Ipv4)-.save and again do the process]
+
+--------------------------------------------------------------------------------------------
+//EFS
+1.create 2 efs instances 
+
+2.launch instance->
+name as efs1->amazon linux->t2.micro->
+key pair->create security group->network->
+subnet-1a(us-east-1a)->description(NFS-SG)->
+add security group->type(NFS)->source type(anywhere)->click launch instance
+
+3.launch instance->name as efs2->amazon linux->t2.micro->key pair->selct security group->select the selected one->click launch instance
+
+4.search EFS->create file system->name:optional,vpc:default,enable region-> 
+do after file created or while creating select file created->network settings->
+remove the subnets or vpc and keep your nfs->save
+
+5.open 2 powershell->in one powershell paste efs1 ssh->sudo su->mkdir efs->yum install -y amazon-efs-utils->
+and do same for efs2 powershell
+
+6.efs->select target efs->actions->attach->mount via dns->copy command->and paste in both powershell
+
+7.in efs1->cd directoryname->touch file.txt->echo "hello">file.txt->ls
+and in efs2 type ls you should get 
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+//EBS
+
+1.create a instance
+
+2.Go to EC2 →Volumes->
+Create volume->
+Volume type:gp3,Size: 20 GB (example),Availability Zone: Same AZ as the EC2 instance->
+Click Create volume
+
+3.Select the newly created EBS volume->
+Click Actions → Attach volume->
+Choose:Instance: Your Linux EC2 instance->
+Device name:/dev/sdf->Click Attach
+
+4. copy ssh->lsblk->
+you will see(/dev/xvdf)->
+lsblk -fs->sudo fdisk /dev/xvdf-> 
+press m,enter,entern,w->lsblk -fs->
+now you should see /dev/xvdf1->sudo mkfs.ext4 /dev/xvdf1->lsblk -fs
+
+5.sudo mkdir /mnt/komal->sudo mount /dev/xvdf1 /mnt/komal->df -h
+
+6.sudo blkid /dev/xvdf1->
+copy the UUID=""->sudo nano /etc/fstab->at last line paste UUID="" /mnt/archana   ext4   defaults,nofail   0   0->sudo mount -a->
+df -h->cd /mnt/komal->sudo touch /mnt/komal/f1->ls
+
+7.if needed reboot or dont do it 
+
+8.EC2 → Volumes → Select volume->Actions →
+Detach volume->Attach to Another EC2 Instance (Same AZ)->
+Attach the volume to a new instance->
+Log in to the new instance->
+Create mount directory:mkdir /mnt/archana->Mount the existing partition:
+
+9.snaphot->ec2->volumes->Select the EBS volume you want to create a snapshot of->
+e. Click on the "Actions" dropdown menu above the volume list and select "Create Snapshot."->
+f. Provide a name and description for the snapshot.->
+g. Click on the "Create Snapshot" button to initiate the snapshot creation process.
+
+10.after created the snapshot go to snapshot in ec2->
+select the snapshot you just created.->
+Click on the "Actions" dropdown menu above the snapshot list and select "Copy Snapshot."->
+d. Choose the destination region where you want to copy the snapshot.->
+e. Click on the "Copy Snapshot" button to initiate the copy process. T
+his may take some time depending on the size of the snapshot and the network speed.
+
+11.monitor the snapshot status as pending or completed
+
+12.Use the region selector in the top-right corner of the AWS Management Console to switch to the destination region where you copied the snapshot->
+In the EC2 Dashboard of the destination region, go to the "Snapshots" section.->
+b. Find the snapshot you copied from the source region.->
+c. Click on the snapshot, then click on the "Actions" dropdown menu and select "Create Volume."->
+d. Configure the volume settings, such as volume type, size, and availability zone.->
+e. Click on the "Create Volume" button to create the volume from the snapshot.
+
+13.. Once the volume is created, navigate to the "Volumes" section in the EC2 Dashboard->
+Find the newly created volume and select it.->
+Click on the "Actions" dropdown menu and select "Attach Volume."->
+EC2 instance to which you want to attach the volume and specify the device name.-> 
+Click on the "Attach" button to attach the volume to the instance
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+//VPC(ub inst)
+
+1.open vpc->your vpc->vpc only->name:custom vpc,ipv4 CIDR:10.0.0.0/16
+
+2.subnets->create->public subnet->select vpc->
+availability zone-a1->subnet cidr:10.0.2.0/24->
+and for private in place of subnet cidr:10.0.1.0/24->
+in public subnet->actions->edit subnet settings->enable
+
+3.internet gateway->create->name:custom->igw->attach to vpc
+
+4.route table->create->name:public->
+select vpc->add route->0.0.0.0,target:Internet Gateway->subnet associations->
+edit->select public->save and for private->name:private->
+select vpc->
+create->subnet associations->edit->click private->save
+
+5.ec2->launch instance->name:public->
+network settings->edit->select vpc->public subnet->
+inbound rules->1.http , anywhere - 2.https,anywhere->
+another for private but in network dont add anything
+
+6.copy the public ssh and paste after that type ping google.com
+
+
+------------------------------------------------------------------------------------------
+
+//vpc through nat gateway
+
+1.vpc->elastic ips->
+create->nat gateway->create->
+Click Create NAT Gateway->
+Name → My-NAT->Subnet → Select Public Subnet->
+Connectivity type → Public->Elastic IP → Select allocated EIP->Click Create
+
+2.Route table->private route table->routes->edit->0.0.0.0,nat gateway
+
+scp -i public.pem private.pem ec2-user@<PUBLIC-IP>:/home/ec2-user/(for amz linux)
+3.in cmd->scp -i public-ins2.pem privet-ins2.pem ubuntu@3.91.60.117:/home/ubuntu/->
+copy the public ssh ->inside chmod 400 cmnd->copy private ssh->chmod 400.pemfilename->ping google.com
+
+-------------------------------------------------------------------------------------------------------------------------
+
+//S3
+
+1.Creating an S3 bucket, upload an object, and enable public access 
+1️⃣ Create an S3 Bucket (with Public Access Enabled)
+Step 1: Open S3 Service
+•	Login to AWS Management Console
+•	Go to Services → S3
+•	Click Create bucket
+________________________________________
+Step 2: Bucket Configuration
+•	Bucket name: my-public-bucket-123
+•	Region: Choose nearest region
+________________________________________
+Step 3: Disable Block Public Access (IMPORTANT)
+Under Block Public Access settings for this bucket:
+❌ Uncheck Block all public access
+You must uncheck ALL options:
+✔ Check I acknowledge that this bucket will become public
+👉 Click Create bucket
+________________________________________
+2️⃣ Enable Public Access at Bucket Level (ACL)
+Step 4: Open the Bucket
+•	Click on the bucket name
+•	Go to Permissions tab
+________________________________________
+Step 5: Edit Bucket ACL
+•	Scroll to Access Control List (ACL)
+•	Click Edit
+Under Public access:
+•	Everyone (public access) → ✔ Read access
+✔ Save changes
+📌 This allows public access at bucket level
+________________________________________
+3️⃣ Upload Object to the Bucket
+Step 6: Upload File
+•	Go to Objects tab
+•	Click Upload
+•	Click Add files
+•	Select file (e.g., image.jpg)
+•	Click Upload
+________________________________________
+4️⃣ Enable Public Access for Object (ACL)
+Step 7: Object-Level ACL Permission
+•	Click on uploaded object
+•	Go to Permissions tab
+•	Scroll to Access Control List (ACL)
+•	Click Edit
+Under Public access:
+•	Everyone (public access) → ✔ Read access
+✔ Save changes
+________________________________________
+5️⃣ Verify Public Access
+Step 8: Test Object URL
+•	Copy Object URL
+•	Open in browser (incognito)
+✔ Object should be accessible without login
+________________________________________
+2. S3 Versioning & Cross-Region Replication 
+________________________________________
+1️⃣ Enabling Versioning in S3 (with Output Scenario)
+🔸 Objective
+To enable version control on an S3 bucket and observe object versions.
+________________________________________
+🔸 Steps to Enable Versioning
+1.	Open AWS Management Console
+2.	Navigate to S3
+3.	Select the bucket
+4.	Go to Properties tab
+5.	Scroll to Bucket Versioning
+6.	Click Edit
+7.	Select Enable
+8.	Click Save changes
+✔ Versioning is now enabled
+________________________________________
+🔸 Output Scenario (What You Observe)
+Step A: Upload Object
+•	Upload file: report.pdf
+📌 Output:
+•	Version ID is assigned automatically
+________________________________________
+Step B: Modify and Re-upload Same Object
+•	Upload report.pdf again (same name)
+📌 Output:
+•	Old version is preserved
+•	New version becomes current
+________________________________________
+Step C: Delete Object
+•	Click Delete on report.pdf
+📌 Output:
+•	Object appears deleted
+•	A Delete Marker is created
+•	Older versions still exist and can be restored
+________________________________________
+
+2️⃣ Cross-Region Replication (CRR) 
+🔸 Objective
+To replicate objects from one bucket to another in a different region using AWS-managed permissions.
+________________________________________
+🔸 Prerequisites (Very Important)
+✔ Versioning must be enabled on both buckets
+✔ Source and destination buckets must be in different regions
+✔ AWS Academy automatically handles replication permissions
+________________________________________
+Step 1️⃣ Create Destination Bucket
+1.	Go to S3 → Create bucket
+2.	Bucket name: dest-crr-bucket
+3.	Select different region
+4.	Complete bucket creation
+5.	Enable Versioning (same steps as above)
+________________________________________
+Step 2️⃣ Create Replication Rule (Without IAM Selection)
+1.	Open Source bucket
+2.	Go to Management tab
+3.	Click Replication rules
+4.	Click Create replication rule
+________________________________________
+Step 3️⃣ Configure Replication Rule
+•	Rule name: academy-crr-rule
+•	Status: Enabled
+•	Scope: Apply to all objects
+________________________________________
+Step 4️⃣ Choose Destination Bucket
+•	Select Another bucket
+•	Choose Destination bucket
+•	Confirm different region
+📌 AWS Academy Note:
+You will see an option like:
+"AWS will create and manage the required permissions automatically"
+✔ Select Use AWS-managed role / default role
+________________________________________
+Step 5️⃣ Replication Options
+•	Replicate:
+o	✔ New objects
+o	❌ Existing objects (optional, depends on Academy permissions)
+•	Encryption: Leave default
+Click Save
+✔ Replication rule is now active
+________________________________________
+3️⃣ CRR Output Scenario (What You Observe)
+🔸 Step A: Upload New Object to Source Bucket
+•	Upload file: image.png
+📌 Output:
+•	Object is uploaded normally
+________________________________________
+🔸 Step B: Verify Destination Bucket
+•	Open destination bucket
+•	Object image.png appears automatically
+•	Version ID is present
+✔ Replication successful
+________________________________________
+
+3.	Static Website Hosting in S3
+(Using Bucket-Level & Object-Level Permissions – ACL Method)
+________________________________________
+🔹 Objective
+To host a static website in Amazon S3 using index.html and error.html, and allow public access using ACL-based bucket and object permissions.
+________________________________________
+🔹 Prerequisites
+•	AWS / AWS Academy account
+•	Two files:
+o	index.html
+o	error.html
+________________________________________
+1️⃣ Create an S3 Bucket
+1.	Login to AWS Management Console
+2.	Go to Services → S3
+3.	Click Create bucket
+4.	Enter:
+o	Bucket name: my-static-site-bucket-123
+o	Region: Nearest region
+5.	Under Block Public Access:
+o	❌ Uncheck Block all public access
+o	✔ Acknowledge the warning
+6.	Click Create bucket
+✔ Bucket created successfully
+________________________________________
+2️⃣ Upload Website Files
+1.	Open the bucket
+2.	Go to Objects tab
+3.	Click Upload
+4.	Click Add files
+5.	Select:
+o	index.html
+o	error.html
+6.	Click Upload
+✔ Files uploaded
+________________________________________
+3️⃣ Enable Static Website Hosting
+1.	Go to Properties tab
+2.	Scroll to Static website hosting
+3.	Click Edit
+4.	Select Enable
+5.	Choose Host a static website
+6.	Enter:
+o	Index document: index.html
+o	Error document: error.html
+7.	Click Save changes
+✔ Static website hosting enabled
+________________________________________
+4️⃣ Enable Bucket-Level Public Access (ACL)
+🔹 Purpose
+Allows public users to access objects inside the bucket.
+________________________________________
+1.	Go to Permissions tab
+2.	Scroll to Access Control List (ACL)
+3.	Click Edit
+4.	Under Public access:
+o	Everyone (public access) → ✔ Read
+5.	Click Save changes
+✔ Bucket-level public read access enabled
+________________________________________
+5️⃣ Enable Object-Level Public Access (ACL)
+Steps (For Each File)
+1.	Go to Objects tab
+2.	Click on index.html
+3.	Go to Permissions
+4.	Scroll to Access Control List (ACL)
+5.	Click Edit
+6.	Under Public access:
+o	Everyone (public access) → ✔ Read
+7.	Save changes
+🔁 Repeat the same steps for error.html
+✔ Object-level public access enabled
+________________________________________
+6️⃣ Access the Static Website
+1.	Go to Properties
+2.	Scroll to Static website hosting
+3.	Copy the Bucket website endpoint
+4.	http://my-static-site-bucket-123.s3-website-region.amazonaws.com
+5.	Paste into browser
+✔ index.html page loads successfully
+________________________________________
+7️⃣ Error Page Output Scenario
+🔹 Test Error Page
+•	Open an invalid URL:
+•	http://bucket-name.s3-website-region.amazonaws.com/invalid.html
+📌 Output:
+•	error.html page is displayed
+✔ Error page working correctly
