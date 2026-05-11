@@ -1,0 +1,365 @@
+ALB
+
+//week-9-elb
+Step-by-Step: AWS Application Load Balancer (ALB) with 2 EC2 Web Servers
+STEP 1 — Launch EC2 Instance 1
+
+Go to:
+
+AWS EC2 Console
+
+Click:
+Launch instance
+Configure
+Field	Value
+Name	webserver-1
+AMI	Amazon Linux
+Instance type	t2.micro
+Key pair	Select existing key
+Network Settings
+
+Allow:
+
+Type	Source
+HTTP	Anywhere
+SSH	My IP / Anywhere
+
+Launch instance.
+
+STEP 2 — Connect to webserver-1
+
+SSH:
+
+ssh -i "your-key.pem" ec2-user@PUBLIC-IP
+STEP 3 — Install Apache on webserver-1
+
+Run:
+
+sudo yum install httpd -y
+
+Start Apache:
+
+sudo systemctl start httpd
+
+Create webpage:
+
+echo "This is Server 1" | sudo tee /var/www/html/index.html
+STEP 4 — Launch EC2 Instance 2
+
+Repeat same steps.
+
+Configure
+Field	Value
+Name	webserver-2
+AMI	Amazon Linux
+Instance type	t2.micro
+
+Launch.
+
+STEP 5 — Connect to webserver-2
+
+SSH:
+
+ssh -i "your-key.pem" ec2-user@PUBLIC-IP
+STEP 6 — Install Apache on webserver-2
+
+Run:
+
+sudo yum install httpd -y
+
+Start Apache:
+
+sudo systemctl start httpd
+
+Create webpage:
+
+echo "This is Server 2" | sudo tee /var/www/html/index.html
+STEP 7 — Create Security Group for Load Balancer
+
+Go to:
+
+EC2 → Security Groups
+
+Click:
+Create security group
+Configure
+Field	Value
+Security group name	lb-sg
+Description	Load balancer SG
+VPC	Default
+Add Inbound Rule
+Type	Source
+HTTP	0.0.0.0/0
+
+Create security group.
+
+STEP 8 — Create Load Balancer
+
+Go to:
+
+EC2 → Load Balancers
+
+Click:
+Create Load Balancer
+Choose:
+Application Load Balancer
+Click:
+Create
+STEP 9 — Configure Load Balancer
+Field	Value
+Name	my-alb
+Scheme	Internet-facing
+IP type	IPv4
+STEP 10 — Select Network
+Setting	Value
+VPC	Default VPC
+
+Select at least:
+
+2 Availability Zones
+
+AWS automatically selects subnets.
+
+STEP 11 — Attach Security Group
+
+Select:
+
+lb-sg
+STEP 12 — Create Target Group
+
+Under:
+
+Listeners and routing
+
+Click:
+
+Create target group
+Configure
+Field	Value
+Target type	Instance
+Name	web-servers-tg
+Protocol	HTTP
+Port	80
+VPC	Default
+
+Click:
+
+Next
+STEP 13 — Register Targets
+
+Select:
+
+webserver-1
+webserver-2
+
+Click:
+
+Include as pending below
+
+Then:
+
+Create target group
+STEP 14 — Attach Target Group to Load Balancer
+
+Go back to Load Balancer creation page.
+
+Under:
+
+Default action
+
+Select:
+
+web-servers-tg
+STEP 15 — Create Load Balancer
+
+Click:
+
+Create load balancer
+
+Wait:
+
+2–5 minutes
+
+Status becomes:
+
+Active
+STEP 16 — Copy DNS Name
+
+Open ALB.
+
+Copy:
+
+DNS name
+
+Example:
+
+my-alb-123456.us-east-1.elb.amazonaws.com
+STEP 17 — Open in Browser
+
+Paste DNS into browser.
+
+Refresh multiple times.
+
+You should alternately see:
+
+This is Server 1
+
+and
+
+This is Server 2
+=========================
+
+
+____________________________________________________________________________
+EC2 → PuTTY, CloudShell, RDP
+
+1. Create an instance → Ubuntu → t2.micro
+   Go to EC2 → Security Groups → Inbound rules
+   Ensure this rule exists:
+   Type: SSH
+   Port: 22
+   Source: My IP
+
+2. Convert .pem to .ppk
+   PuTTYgen → Load → Files type: All Files → Select .pem → Save private key → Yes → filename.ppk
+
+3. Open PuTTY
+   Hostname → ubuntu@PublicIPv4
+   Connection → SSH → Auth → Credentials → Browse → Select .ppk → Open
+   After connection, type: whoami → EC2 connected
+
+4. If network error occurs
+   Instance → Security → Security group → Inbound rules → Edit
+   SSH → Source → My IP
+   Repeat PuTTY connection
+
+5. CloudShell connection
+   Click CloudShell icon → Select EC2 instance → Connect
+   Copy SSH command → Paste in CloudShell
+   If error → Actions → Upload file → Upload .pem
+   Retry SSH → If error → ls → chmod 400 filename.pem → Retry SSH → whoami
+
+6. Create Windows instance
+   AMI → Windows Server 2019/2022 → t2.micro
+   Key pair → Network settings → Security group
+   Allow RDP (3389) → Source: My IP → Launch
+
+7. Connect to Windows instance
+   Copy Public DNS/IP → Connect → RDP Client → Get Password
+   Upload .pem → Decrypt → Copy Administrator password
+
+8. Remote Desktop
+   Open Remote Desktop → Enter Public DNS
+   Use different account → Username: Administrator → Paste password
+   If error → Security group → Add RDP rule → Anywhere IPv4 → Retry
+
+---
+
+EFS
+
+1. Create 2 EC2 instances
+
+2. Launch instance → Name: efs1 → Amazon Linux → t2.micro
+   Key pair → Create security group → Subnet: 1a
+   Add rule: NFS → Source: Anywhere → Launch
+
+3. Launch instance → Name: efs2 → Amazon Linux → t2.micro
+   Select same security group → Launch
+
+4. Search EFS → Create file system
+   Name optional → VPC default → Enable region
+   After creation → Network settings → Keep NFS SG → Save
+
+5. Open two PowerShell terminals
+   SSH into efs1 → sudo su → mkdir fs → yum install amazon-efs-utils
+   Repeat for efs2
+
+6. EFS → Select file system → Attach → Mount via DNS
+   Copy command → Run on both instances
+
+7. On efs1
+   cd directory → touch file.txt → echo "hello" > file.txt → ls
+   On efs2 → ls → file visible
+
+---
+
+EBS
+
+1. Create instance
+
+2. EC2 → Volumes → Create volume
+   Type: gp3 → Size: 20 GB → Same AZ → Create
+
+3. Select volume → Attach volume
+   Instance → Linux EC2 → Device: /dev/sdf → Attach
+
+4. SSH → lsblk → See /dev/xvdf
+   lsblk -fs → sudo fdisk /dev/xvdf → m → n → Enter → w
+   lsblk -fs → sudo mkfs.ext4 /dev/xvdf1
+
+5. sudo mkdir /mnt/komal
+   sudo mount /dev/xvdf1 /mnt/komal
+   df -h
+
+6. sudo blkid /dev/xvdf1
+   Copy UUID → sudo nano /etc/fstab
+   Add line: UUID=... /mnt/archana xfs defaults,nofail 0 0
+   sudo mount -a → df -h → touch file
+
+7. Reboot optional
+
+8. Detach volume → Attach to another instance → Mount again
+
+9. Snapshot creation
+   EC2 → Volumes → Actions → Create Snapshot → Name → Create
+
+10. Copy Snapshot
+    Select snapshot → Copy → Choose region → Copy
+
+11. Monitor snapshot status
+
+12. Destination region → Snapshots → Create Volume → Attach
+
+13. Attach volume → Mount on instance
+
+---
+
+VPC
+
+1. VPC → Create VPC → VPC only
+   Name: Custom VPC → CIDR: 10.0.0.0/16
+
+2. Subnets
+   Public: 10.0.2.0/24
+   Private: 10.0.1.0/24
+   Enable auto public IP for public subnet
+
+3. Internet Gateway
+   Create → Attach to VPC
+
+4. Route Tables
+   Public RT → 0.0.0.0/0 → IGW → Associate public subnet
+   Private RT → Associate private subnet
+
+5. Launch EC2
+   Public → Public subnet → HTTP/HTTPS allowed
+   Private → Private subnet
+
+6. SSH → ping google.com
+
+---
+
+VPC using NAT Gateway
+
+1. Elastic IP → Create
+   NAT Gateway → Create → Public subnet → Attach EIP
+
+2. Private Route Table
+   Add route: 0.0.0.0/0 → NAT Gateway
+
+3. SCP private key to bastion
+   scp -i public.pem private.pem ubuntu@PublicIP:/home/ubuntu/
+
+4. Bastion SSH → chmod 400 private.pem
+   SSH to private instance → ping google.com
+____________________________________________________________________________________
