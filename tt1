@@ -77,6 +77,10 @@ add security group->type(NFS)->source type(anywhere)->click launch instance
 
 3.launch instance->name as efs2->amazon linux->t2.micro->key pair->selct security group->select the selected one->click launch instance
 
+(make sure..go to any ec2-?security->click on sggroup link->inbound rules edit->
+add NFS if not there(should have both ssh and nfs to sourse 0000)
+
+
 4.search EFS->create file system->name:optional,vpc:default,enable region-> 
 do after file created or while creating select file created->network settings->
 remove the subnets or vpc and keep your nfs->save
