@@ -34,6 +34,92 @@ def lambda_handler(event, context):
 5.click deploy->click add trigger->s3->use s3 table
 6.upload the file in s3 .  in dynamodb->your table->explore table items->file should visible
 ----------------------------------------------------------------------------------------------------------------------
+week-9/ALB
+# Step 1: Launch EC2 Instance 1
+1. Go to Amazon Web Services EC2 Console
+2. Click Launch Instance
+3. Name: `webserver-1`
+4. Choose Amazon Linux
+5. Select `t2.micro`
+6. Create/choose key pair
+7. Security Group:
+   * Allow SSH (22) from My IP
+   * Allow HTTP (80) from Anywhere
+8. Launch Instance
+# Step 2: Configure Web Server 1
+1. Connect using SSH:
+ssh -i "key.pem" ec2-user@PUBLIC-IP
+2. Run commands:
+```bash id="jlwm9p"
+sudo su
+yum update -y
+yum install httpd -y
+systemctl start httpd
+systemctl enable httpd
+echo "This is Server 1" > /var/www/html/index.html
+```
+# Step 3: Launch EC2 Instance 2
+1. Launch another instance
+2. Name: `webserver-2`
+3. Same configuration as Instance 1
+4. Allow SSH and HTTP
+5. Launch instance
+# Step 4: Configure Web Server 2
+1. Connect using SSH
+2. Run:
+```bash id="jlwm4k"
+sudo su
+yum update -y
+yum install httpd -y
+systemctl start httpd
+systemctl enable httpd
+echo "This is Server 2" > /var/www/html/index.html
+```
+# Step 5: Create Security Group for Load Balancer
+1. Go to EC2 → Security Groups
+2. Click Create Security Group
+3. Name: `lb-sg`
+4. Add inbound rule:
+   * HTTP (80) → Anywhere
+5. Create Security Group
+# Step 6: Create Load Balancer(forst create target grp)
+1. Go to EC2 → Load Balancers
+2. Click Create Load Balancer
+3. Choose Application Load Balancer
+4. Name: `my-alb`
+5. Scheme: Internet-facing
+6. Listener: HTTP (80)
+# Step 7: Configure Network
+1. Select Default VPC
+2. Select minimum 2 subnets/AZs
+# Step 8: Attach Security Group
+1. Select `lb-sg`
+# Step 9: Create Target Group
+1. Name: `web-servers-tg`
+2. Target type: Instance
+3. Protocol: HTTP
+4. Port: 80
+5. Health check path: `/`
+# Step 10: Register Targets
+1. Select:
+   * webserver-1
+   * webserver-2
+2. Click Include as pending
+3. Create target group
+# Step 11: Create Load Balancer
+1. Attach created target group
+2. Click Create Load Balancer
+3. Wait until status becomes Active
+# Step 12: Verify
+1. Open Load Balancer
+2. Copy DNS name
+3. Paste in browser
+4. Refresh multiple times
+You will see:
+* This is Server 1
+* This is Server 2
+✅ Load Balancer working successfully
+_____________________________________________________________________________________________________________________
 //week-13-attaching iam to ec2
 1.log in into free tier account
 2.Roles->create role->aws service->under use case select ec2
