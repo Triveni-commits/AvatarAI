@@ -214,6 +214,7 @@ Step 1: Open S3 Service
 ________________________________________
 Step 2: Bucket Configuration
 •	Bucket name: my-public-bucket-123
+->enable acl
 •	Region: Choose nearest region
 ________________________________________
 Step 3: Disable Block Public Access (IMPORTANT)
@@ -309,6 +310,7 @@ ________________________________________
 Step 1️⃣ Create Destination Bucket
 1.	Go to S3 → Create bucket
 2.	Bucket name: dest-crr-bucket
+->enable acl whilw creating
 3.	Select different region
 4.	Complete bucket creation
 5.	Enable Versioning (same steps as above)
@@ -372,6 +374,7 @@ ________________________________________
 3.	Click Create bucket
 4.	Enter:
 o	Bucket name: my-static-site-bucket-123
+->enable acl whilw creating
 o	Region: Nearest region
 5.	Under Block Public Access:
 o	❌ Uncheck Block all public access
