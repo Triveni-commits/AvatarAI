@@ -81,7 +81,8 @@ add security group->type(NFS)->source type(anywhere)->click launch instance
 add NFS if not there(should have both ssh and nfs to sourse 0000)
 
 
-4.search EFS->create file system->name:optional,vpc:default,enable region-> 
+4.search EFS->create file system->name:optional,vpc:default,enable region-> (better customize while creating and 
+add sg gropud removing other sg grps)
 do after file created or while creating select file created->network settings->
 remove the subnets or vpc and keep your nfs->save
 
