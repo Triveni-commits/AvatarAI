@@ -6,11 +6,11 @@ STEP 1: Create Emulator
 
 STEP 2: Check Emulator Name
 • Open Command Prompt
-• Go to emulator folder
+• Go to emulator folder(go to proje struct-sdk->u will find path)
 • Run: emulator -list-avds
 • Note name
 
-STEP 3: Start Emulator with Proxy
+STEP 3: Start Emulator with Proxy(replace pixel 9 with name)
 • Run: emulator -avd Pixel_9 -http-proxy http://10.0.2.2:8080
 
 STEP 4: Set Proxy in Emulator
@@ -19,10 +19,10 @@ STEP 4: Set Proxy in Emulator
 • Edit → Advanced Options
 • Proxy = Manual
 • Host = 10.0.2.2
-• Port = 8080
+• Port = 8080(chnge if needed or occupied)
 • Save
 
-STEP 4 (Alternative ADB)
+STEP 4 (Alternative ADB)(see admin eplace with correct user and .. and cd platform-tools)
 cd C:\Users\Admin\AppData\Local\Android\Sdk\platform-tools(full apth to run the adb devices )
 • adb devices
 • adb shell settings put global http_proxy 10.0.2.2:8080
@@ -69,6 +69,7 @@ STEP 10: Test HTTPS
 STEP 1: Deploy IoT Simulation
 • Open Command Prompt
 • Run: docker run -d -p 8090:3000 --name juiceshop bkimminich/juice-shop
+(if already ruuning..docker start juiceshop)
 • Open browser → http://localhost:8090
 
 • Verify app is running (OWASP Juice Shop)
@@ -127,6 +128,8 @@ STEP 3: Identify Disk
 • View disks like: sda, sda1
 • sda = disk, sda1 = partition
 
+->sudo apt install dc3dd
+
 STEP 4: Create Practice Disk
 • Run: dd if=/dev/zero of=practice_disk.dd bs=1M count=100
 • Creates 100 MB disk file
@@ -135,14 +138,11 @@ STEP 5: Format Disk
 • Run: mkfs.ext4 practice_disk.dd
 • Converts into EXT4 filesystem
 
-STEP 6: Create Forensic Image
-• Install tool: sudo apt install dc3dd
-• Run: sudo dc3dd if=practice_disk.dd of=/home/kali/disk_image.dd hash=md5 log=/home/kali/acquisition.log
-• Creates image + MD5 hash + log
 
-STEP 7: Verify Image & Log
-• Check image: ls -lh /home/kali/disk_image.dd
-• Check log: cat /home/kali/acquisition.log
+ls -lh /home/kali/practice_disk.dd
+sudo dc3dd if=practice_disk.dd of=copy.dd hash=md5 log=acquisition.log
+cat /home/kali/acquisition.log
+
 
 STEP 8: Start Autopsy
 • Run: sudo autopsy
@@ -160,7 +160,7 @@ STEP 10: Add Host
 
 STEP 11: Add Disk Image
 • Click Add Image
-• Select /home/kali/disk_image.dd
+• Select /home/kali/practice_disk.dd
 • Click Next → Finish
 
 STEP 12: Analyze Evidence
