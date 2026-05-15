@@ -6,19 +6,32 @@ sudo tcpdump -i any -w capture.pcap port 8080
 open firefox type http://localhost:8080
 then stop tcpdump terminal and you can see the packets in python terminal 
 on kali icon type file manager-> click on capture.pcap->in search bar type http.method=="POST"
-=====================================================================================================================================================================================================================
+===========================================================================================================================
+
+for all dvwa Step 3: Configure DVWA
+Edit config file:
+sudo nano /etc/dvwa/config.inc.php
+Ensure:
+$_DVWA['db_password'] = '';
+==========================================================================================
 //SQL injection attack
 open kali linux terminal
 sudo apt update
 sudo apt install dvwa -y
 sudo service apache2 start
 sudo service mysql start
-to open dvwa use docker 
+[to open dvwa use docker 
 open docker 
 docker pull vulnerables/web-dvwa
 docker run --rm -it -p 80:80 vulnerables/web-dvwa
 open browser and type http://127.0.0.1
-or docker run -d -p 8081:80 vulnerables/web-dvwa and open http://127.0.0.1:81
+or docker run -d -p 8081:80 vulnerables/web-dvwa and open http://127.0.0.1:81]
+$Step 3: Configure DVWA
+Edit config file:
+sudo nano /etc/dvwa/config.inc.php
+Ensure:
+$_DVWA['db_password'] = '';$
+$open  http://127.0.0.1
 login username:admin,Password:password 
 click create or reset database if needed again login 
 in that go to dvwa security->set to low->submit
