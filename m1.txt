@@ -154,6 +154,24 @@ for row in mycsv:
 
         subprocess.run(["powershell", "-Command", add_rule])
 run python filename.py
+
+FOR MANUAL IP(s):
+import subprocess
+
+manual_ips=["8.8.8.8","1.1.1.1","192.168.1.100"]
+
+delete_rule='netsh advfirewall firewall delete rule name="BadIP"'
+subprocess.run(["powershell","-Command",delete_rule])
+
+for ip in manual_ips:
+    print("Blocking IP:",ip)
+
+    add_rule=(
+        f'netsh advfirewall firewall add rule '
+        f'name="BadIP" dir=out action=block remoteip={ip}'
+    )
+
+    subprocess.run(["powershell","-Command",add_rule])
 ==========================================================================================================================================================================================================
 //testing authentication using bruteforce
 //SQL injection attack
