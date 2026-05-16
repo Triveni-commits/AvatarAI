@@ -64,6 +64,7 @@ docker pull vulnerables/web-dvwa
 docker run --rm -it -p 80:80 vulnerables/web-dvwa
 open browser and type http://127.0.0.1
 login username:admin,Password:password 
+go to security-set low
 reflected XSS
 <script>alert('XSS')</script>
 stored XSS
@@ -75,6 +76,8 @@ in the url bar add #<script>alert('DOM XSS')</script>
 Step 6: Capture Cookie (Lab Demo)
 In Stored XSS Message box:
 <script>alert(document.cookie)</script>
+
+and try for diff sec levels and observe
 =================================================================================================================================================================================
 //eml analyser and virus total
 login into your email and download any message
