@@ -167,4 +167,17 @@ STEP 12: Analyze Evidence
 • Go to File Analysis
 • Search: evidence.txt
 • File will be found
+
+
+
+
+after formatting
+mkdir mountdir
+sudo mount -o loop practice_disk.dd mountdir
+sudo cp evidence.txt mountdir/
+ls mountdir
+sudo umount mountdir
+now go to step
+sudo dc3dd if=practice_disk.dd of=copy.dd hash=md5 log=acquisition.log
+
 ----------------------------------------------------------------------------------------------------------------------
